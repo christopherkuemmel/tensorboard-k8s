@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensorboard
+  labels:
+    app: tensorboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tensorboard
+  template:
+    metadata:
+      labels:
+        app: tensorboard
+    spec:
+      containers:
+        - name: tensorboard
+          image: tensorflow/tensorflow:2.3.1
+          volumeMounts:
+            - name: tensorboard-persistent-storage
+              mountPath: /pv/tensorboard
+          command: ["sh", "-c", "tensorboard --logdir /pv/tensorboard/"]
+          resources:
+            requests:
+              memory: 1Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+              cpu: 1
+          ports:
+            - containerPort: 6006
+      volumes:
+        - name: tensorboard-persistent-storage
+          persistentVolumeClaim:
+            claimName: tensorboard-pvc
